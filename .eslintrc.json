@@ -1,0 +1,25 @@
+{
+  "root": true,
+  "env": {
+      "node": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:vue/recommended",
+    "@vue/standard"
+  ],
+  "parserOptions": {
+      "ecmaVersion": 6,
+      "sourceType": "module",
+      "ecmaFeatures": {
+          "jsx": true
+      }
+  },
+  "plugins": [
+    "eslint-plugin-vue"
+  ],
+  "rules": {
+      "semi": "error",
+      "vue/no-unused-components": "warn"
+  }
+}
