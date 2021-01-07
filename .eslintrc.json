@@ -6,20 +6,35 @@
   "extends": [
     "eslint:recommended",
     "plugin:vue/recommended",
-    "@vue/standard"
+    "@vue/standard",
+    "plugin:@typescript-eslint/recommended"
   ],
+  "parser": "vue-eslint-parser",
   "parserOptions": {
-      "ecmaVersion": 6,
+    "parser": "@typescript-eslint/parser",
+      "ecmaVersion": 2020,
       "sourceType": "module",
       "ecmaFeatures": {
           "jsx": true
       }
   },
   "plugins": [
-    "eslint-plugin-vue"
+    "pug",
+    "eslint-plugin-vue",
+    "@typescript-eslint"
   ],
   "rules": {
-      "semi": "error",
-      "vue/no-unused-components": "warn"
+    "semi": "error",
+    "no-unused-vars": "warn",
+    "vue/no-unused-components": "warn",
+    "vue/multiline-html-element-content-newline":  0,
+    "comma-dangle": ["error", {
+      "arrays": "never",
+      "objects": "never",
+      "imports": "never",
+      "exports": "never",
+      "functions": "never"
+    }],
+    "no-useless-constructor": 0
   }
 }
