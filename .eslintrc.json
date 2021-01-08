@@ -28,6 +28,7 @@
     "no-unused-vars": "warn",
     "vue/no-unused-components": "warn",
     "vue/multiline-html-element-content-newline":  0,
+    "vue/no-multiple-template-root": "warn",
     "comma-dangle": ["error", {
       "arrays": "never",
       "objects": "never",
