@@ -2,6 +2,7 @@
   "compilerOptions": {
     "allowJs": true,
     "target": "es5",
+    "downlevelIteration": true,
     "module": "esnext",
     "strict": true,
     "jsx": "preserve",
