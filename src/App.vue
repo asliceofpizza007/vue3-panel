@@ -1,29 +1,31 @@
-<template>
-  <Panel>
-    <div>Panel</div>
-    <p>123</p>
-  </Panel>
+<template lang="pug">
+Test
+Panel
+  Test
+Panel
+  Test
+Panel
+  Test
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
 import Panel from './components/Panel.vue'
+import Test from '@/views/panelContent/panel.vue'
 
 export default defineComponent({
   name: 'App',
   components: {
-    Panel
+    Panel,
+    Test
   }
 })
 </script>
 
 <style lang="scss">
 #app {
+  box-sizing: border-box;
   font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+  background: linear-gradient(to right, #456781, #971451);
 }
 </style>
