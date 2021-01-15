@@ -1,5 +1,5 @@
 class ZIndexHelper {
-  public map: Map<number, HTMLElement>
+  public map: Map<HTMLElement, number>
   public zIndex: number
   private constructor () {
     this.map = new Map()
@@ -13,33 +13,25 @@ class ZIndexHelper {
   }
 
   public update (el: HTMLElement): void {
-    this.map.set(this.zIndex++, el)
+    this.map.set(el, this.zIndex++)
   }
 
   public getIndex (el: HTMLElement): number {
-    let index = this.zIndex
-    const keys = [...this.map.keys()]
-    for (const key of keys) {
-      if (this.map.get(Number(key)) === el) {
-        index = Number(key)
-        break
-      }
+    const index = this.map.get(el)
+    if (index) {
+      return index
     }
-
-    return index
+    return this.zIndex
   }
 
-  refreshZIndex (el: HTMLElement): void {
-    const keys = [...this.map.keys()]
-    let currentIndex
-    for (const key of keys) {
-      if (this.map.get(Number(key)) === el) {
-        currentIndex = key
-        break
-      }
-    }
+  public deleteFromMap (el: HTMLElement): void {
+    this.map.delete(el)
+  }
+
+  public refreshZIndex (el: HTMLElement): void {
+    const currentIndex = this.map.get(el)
     if (currentIndex && currentIndex !== this.zIndex - 1) {
-      this.map.delete(currentIndex)
+      this.map.delete(el)
       this.update(el)
     }
   }
