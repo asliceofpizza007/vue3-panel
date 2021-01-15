@@ -16,12 +16,19 @@ Teleport(to="body")
       slot
 </template>
 <script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue'
+import { defineComponent, ref, onMounted, onBeforeUnmount } from 'vue'
 import Panel from '@/panel/Panel'
 
 export default defineComponent({
   name: 'Panel',
-  setup () {
+  props: {
+    // eslint-disable-next-line vue/require-default-prop
+    config: {
+      type: Object
+    }
+  },
+  emits: ['close'],
+  setup (prop, { emit }) {
     const panelRef = ref<HTMLElement>()
     let panel: Panel
 
@@ -34,9 +41,13 @@ export default defineComponent({
         panel = new Panel(panelRef.value, size)
       }
     })
+    onBeforeUnmount(() => {
+      onClose()
+      console.log('unmount')
+    })
 
     const onClose = (): void => {
-      panel.close()
+      emit('close')
     }
 
     const onMaximize = (): void => {
