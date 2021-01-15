@@ -25,7 +25,7 @@ class Panel {
   private zIndexHelper: ZIndexHelper
 
   constructor (
-    private readonly el: HTMLElement,
+    private el: HTMLElement,
     private size: Size
   ) {
     this.zIndexHelper = ZIndexHelper.useZIndexHelper()
@@ -33,6 +33,7 @@ class Panel {
     this.setZindex()
     this.setSize(size)
     this.setListener()
+    this.checkStatus()
   }
 
   private setZindex () {
@@ -54,13 +55,9 @@ class Panel {
     this.containerHeight = offsetHeight
   }
 
-  private onMouseDown = (e: MouseEvent): void => {
-    if (this.status !== 'normalized') return
+  private handleMove = (e: MouseEvent): void => {
     this.isMouseDown = true
     this.el.style.userSelect = 'none'
-    this.zIndexHelper.refreshZIndex(this.el)
-    this.setZindex()
-
     this.setContainer()
     const {
       offsetTop,
@@ -72,6 +69,21 @@ class Panel {
     } = e
     this.diffX = clientX - offsetLeft
     this.diffY = clientY - offsetTop
+  }
+
+  private onPanelSelect = (e: MouseEvent): void => {
+    if (this.status !== 'normalized') return
+    this.zIndexHelper.refreshZIndex(this.el)
+    this.setZindex()
+    if (e.ctrlKey) {
+      this.el.style.cursor = 'move'
+      this.handleMove(e)
+    }
+  }
+
+  private onMouseDown = (e: MouseEvent): void => {
+    if (this.status !== 'normalized') return
+    this.handleMove(e)
   }
 
   private onMouseMove = (e: MouseEvent) => {
@@ -109,6 +121,7 @@ class Panel {
 
   private onMouseUp = (): void => {
     this.isMouseDown = false
+    this.el.style.cursor = 'initial'
     this.el.style.userSelect = 'unset'
   }
 
@@ -117,15 +130,42 @@ class Panel {
     if (header) {
       header.addEventListener('mousedown', this.onMouseDown)
     }
-
+    this.el.addEventListener('mousedown', this.onPanelSelect)
     document.addEventListener('mousemove', this.onMouseMove)
     document.addEventListener('mouseup', this.onMouseUp)
+  }
+
+  private checkStatus (): void {
+    const maxController = this.el.querySelector('.panel-header .toolbar .controller.maximize') as HTMLElement
+    const minController = this.el.querySelector('.panel-header .toolbar .controller.minimize') as HTMLElement
+    const norController = this.el.querySelector('.panel-header .toolbar .controller.normalize') as HTMLElement
+    switch (this.status) {
+      case 'normalized':
+        norController.style.display = 'none'
+        maxController.style.display = 'block'
+        minController.style.display = 'block'
+        break
+      case 'maximized':
+        norController.style.display = 'block'
+        maxController.style.display = 'none'
+        minController.style.display = 'none'
+        break
+      case 'minimized':
+        norController.style.display = 'block'
+        maxController.style.display = 'none'
+        minController.style.display = 'none'
+        break
+      default:
+    }
   }
 
   public normalize (): void {
     const content = this.el.querySelector('.panel-content') as HTMLElement
     content.style.display = 'block'
     this.status = 'normalized'
+    this.checkStatus()
+    this.zIndexHelper.refreshZIndex(this.el)
+    this.setZindex()
     const {
       top,
       left
@@ -139,6 +179,7 @@ class Panel {
   public minimize (): void {
     this.isMouseDown = false
     this.status = 'minimized'
+    this.checkStatus()
     this.tempPos.top = this.el.style.top
     this.tempPos.left = this.el.style.left
 
@@ -153,11 +194,13 @@ class Panel {
     this.el.style.top = 'unset'
     this.el.style.bottom = '0'
     this.el.style.left = '0'
+    this.el.style.zIndex = '9999'
   }
 
   public maximize (): void {
     this.isMouseDown = false
     this.status = 'maximized'
+    this.checkStatus()
     this.tempPos.top = this.el.style.top
     this.tempPos.left = this.el.style.left
 
@@ -175,10 +218,10 @@ class Panel {
     if (header) {
       header.removeEventListener('mousedown', this.onMouseDown)
     }
-
+    this.el.removeEventListener('mousedown', this.onPanelSelect)
     document.removeEventListener('mousemove', this.onMouseMove)
     document.removeEventListener('mouseup', this.onMouseUp)
-    this.el.remove()
+    this.zIndexHelper.deleteFromMap(this.el)
   }
 }
 
