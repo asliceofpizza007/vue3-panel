@@ -1,26 +1,51 @@
 <template lang="pug">
 Teleport(to="body")
-  .panel(ref="panelRef" id="panel")
+  .panel(ref="panelRef" v-show="!isMinimized")
     .panel-header
       .title header title
       .toolbar
-        .controller.minimize(@click="onMinimize")
+        .controller.minimize(v-show="!isMinimized"
+          @click="onMinimize"
+        )
           .i.mdi-window-minimize
-        .controller.normalize(@click="onNormalize")
+        .controller.normalize(v-show="!isNormalized"
+          @click="onNormalize"
+        )
           .i.mdi-window-restore
-        .controller.maximize(@click="onMaximize")
+        .controller.maximize(v-show="!isMaximized"
+          @click="onMaximize"
+        )
           .i.mdi-window-maximize
         .controller.close(@click="onClose")
           .i.mdi-window-close
     .panel-content
       slot
+Teleport(to="#panel-minimize-container")
+  MinimizePanel(v-if="isMinimized")
+    .panel-header
+      .title header title
+      .toolbar
+        .controller.normalize(v-show="!isNormalized"
+          @click="onNormalize"
+        )
+          .i.mdi-window-restore
+        .controller.maximize(v-show="!isMaximized"
+          @click="onMaximize"
+        )
+          .i.mdi-window-maximize
+        .controller.close(@click="onClose")
+          .i.mdi-window-close
 </template>
 <script lang="ts">
-import { defineComponent, ref, onMounted, onBeforeUnmount } from 'vue'
+import { defineComponent, ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import Panel from '@/panel/Panel'
+import MinimizePanel from './MinimizePanel.vue'
 
 export default defineComponent({
   name: 'Panel',
+  components: {
+    MinimizePanel
+  },
   props: {
     // eslint-disable-next-line vue/require-default-prop
     config: {
@@ -30,6 +55,9 @@ export default defineComponent({
   emits: ['close'],
   setup (prop, { emit }) {
     const panelRef = ref<HTMLElement>()
+    const isMinimized = ref<boolean>(false)
+    const isMaximized = ref<boolean>(false)
+    const isNormalized = ref<boolean>(true)
     let panel: Panel
 
     onMounted(() => {
@@ -52,17 +80,29 @@ export default defineComponent({
 
     const onMaximize = (): void => {
       panel.maximize()
+      isMaximized.value = true
+      isMinimized.value = false
+      isNormalized.value = false
     }
 
     const onNormalize = (): void => {
       panel.normalize()
+      isMaximized.value = false
+      isMinimized.value = false
+      isNormalized.value = true
     }
 
     const onMinimize = (): void => {
       panel.minimize()
+      isMaximized.value = false
+      isMinimized.value = true
+      isNormalized.value = false
     }
     return {
       panelRef,
+      isMaximized,
+      isMinimized,
+      isNormalized,
       onClose,
       onMaximize,
       onMinimize,

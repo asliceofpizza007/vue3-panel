@@ -33,7 +33,7 @@ class Panel {
     this.setZindex()
     this.setSize(size)
     this.setListener()
-    this.checkStatus()
+    // this.checkStatus()
   }
 
   private setZindex () {
@@ -117,6 +117,8 @@ class Panel {
 
     this.el.style.top = newTop + 'px'
     this.el.style.left = newLeft + 'px'
+    this.tempPos.top = this.el.style.top
+    this.tempPos.left = this.el.style.left
   }
 
   private onMouseUp = (): void => {
@@ -135,42 +137,16 @@ class Panel {
     document.addEventListener('mouseup', this.onMouseUp)
   }
 
-  private checkStatus (): void {
-    const maxController = this.el.querySelector('.panel-header .toolbar .controller.maximize') as HTMLElement
-    const minController = this.el.querySelector('.panel-header .toolbar .controller.minimize') as HTMLElement
-    const norController = this.el.querySelector('.panel-header .toolbar .controller.normalize') as HTMLElement
-    switch (this.status) {
-      case 'normalized':
-        norController.style.display = 'none'
-        maxController.style.display = 'block'
-        minController.style.display = 'block'
-        break
-      case 'maximized':
-        norController.style.display = 'block'
-        maxController.style.display = 'none'
-        minController.style.display = 'none'
-        break
-      case 'minimized':
-        norController.style.display = 'block'
-        maxController.style.display = 'none'
-        minController.style.display = 'none'
-        break
-      default:
-    }
-  }
-
   public normalize (): void {
     const content = this.el.querySelector('.panel-content') as HTMLElement
     content.style.display = 'block'
     this.status = 'normalized'
-    this.checkStatus()
     this.zIndexHelper.refreshZIndex(this.el)
     this.setZindex()
     const {
       top,
       left
     } = this.tempPos
-
     this.el.style.top = top
     this.el.style.left = left
     this.setSize(this.size)
@@ -179,30 +155,11 @@ class Panel {
   public minimize (): void {
     this.isMouseDown = false
     this.status = 'minimized'
-    this.checkStatus()
-    this.tempPos.top = this.el.style.top
-    this.tempPos.left = this.el.style.left
-
-    const content = this.el.querySelector('.panel-content') as HTMLElement
-    content.style.display = 'none'
-
-    const minSize: Size = {
-      width: 200,
-      height: 30
-    }
-    this.setSize(minSize)
-    this.el.style.top = 'unset'
-    this.el.style.bottom = '0'
-    this.el.style.left = '0'
-    this.el.style.zIndex = '9999'
   }
 
   public maximize (): void {
     this.isMouseDown = false
     this.status = 'maximized'
-    this.checkStatus()
-    this.tempPos.top = this.el.style.top
-    this.tempPos.left = this.el.style.left
 
     const maxSize: Size = {
       width: this.containerWidth,
