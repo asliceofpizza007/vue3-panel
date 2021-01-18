@@ -21,7 +21,7 @@ Teleport(to="body")
     .panel-content
       slot
 Teleport(to="#panel-minimize-container")
-  MinimizePanel(v-if="isMinimized")
+  MinimizePanel(v-show="isMinimized")
     .panel-header
       .title header title
       .toolbar
