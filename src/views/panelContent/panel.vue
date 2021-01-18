@@ -1,6 +1,6 @@
 <template lang="pug">
 .hello Hello, World !
-p Hello, Wolrd!
+p Hello, World!
 </template>
 <script lang="ts">
 import { defineComponent } from 'vue'
