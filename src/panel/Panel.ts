@@ -11,7 +11,8 @@ type Position = {
 }
 
 class Panel {
-  private isMouseDown = false
+  private isDragging = false
+  private isResizing = false
   private status = 'normalized'
   private containerWidth = 0
   private containerHeight = 0
@@ -20,6 +21,21 @@ class Panel {
   private tempPos: Position = {
     top: '0',
     left: '0'
+  }
+
+  private originX = 0
+  private originY = 0
+  private originMouseX = 0
+  private originMouseY = 0
+  private resizeDirection = ''
+  private tempSize: Size = {
+    width: 0,
+    height: 0
+  }
+
+  private readonly miniumSize: Size = {
+    width: 240,
+    height: 360
   }
 
   private zIndexHelper: ZIndexHelper
@@ -32,11 +48,11 @@ class Panel {
     this.zIndexHelper.update(this.el)
     this.setZindex()
     this.setSize(size)
+    this.setContainer()
     this.setListener()
-    // this.checkStatus()
   }
 
-  private setZindex () {
+  private setZindex = (): void => {
     const index = this.zIndexHelper.getIndex(this.el)
     this.el.style.zIndex = index + ''
   }
@@ -46,7 +62,7 @@ class Panel {
     this.el.style.height = size.height + 'px'
   }
 
-  private setContainer (): void {
+  private setContainer = (): void => {
     const {
       offsetWidth,
       offsetHeight
@@ -55,8 +71,8 @@ class Panel {
     this.containerHeight = offsetHeight
   }
 
-  private handleMove = (e: MouseEvent): void => {
-    this.isMouseDown = true
+  private setMoveState = (e: MouseEvent): void => {
+    this.isDragging = true
     this.el.style.userSelect = 'none'
     this.setContainer()
     const {
@@ -71,23 +87,34 @@ class Panel {
     this.diffY = clientY - offsetTop
   }
 
-  private onPanelSelect = (e: MouseEvent): void => {
-    if (this.status !== 'normalized') return
+  public onHandlerDown = (e: MouseEvent, handler: string): void => {
+    e.stopPropagation()
+    this.zIndexHelper.refreshZIndex(this.el)
+    this.setZindex()
+
+    this.isResizing = true
+    this.el.style.userSelect = 'none'
+    this.originX = this.el.getBoundingClientRect().left
+    this.originY = this.el.getBoundingClientRect().top
+    this.originMouseX = e.pageX
+    this.originMouseY = e.pageY
+    this.resizeDirection = handler
+  }
+
+  public onPanelSelect = (e: MouseEvent): void => {
     this.zIndexHelper.refreshZIndex(this.el)
     this.setZindex()
     if (e.ctrlKey) {
       this.el.style.cursor = 'move'
-      this.handleMove(e)
+      this.setMoveState(e)
     }
   }
 
-  private onMouseDown = (e: MouseEvent): void => {
-    if (this.status !== 'normalized') return
-    this.handleMove(e)
+  public onHeaderDown = (e: MouseEvent): void => {
+    this.setMoveState(e)
   }
 
-  private onMouseMove = (e: MouseEvent) => {
-    if (!this.isMouseDown) return false
+  private handleDragging = (e: MouseEvent): void => {
     const {
       clientX,
       clientY
@@ -121,23 +148,101 @@ class Panel {
     this.tempPos.left = this.el.style.left
   }
 
+  private positionOutOfWindow (x: number, y: number): boolean {
+    const isHorizontalOverflow = x < 0 || x > this.containerWidth
+    const isVerticalOverflow = y < 0 || y > this.containerHeight
+    return isHorizontalOverflow || isVerticalOverflow
+  }
+
+  private handleResizing = (e: MouseEvent): void => {
+    if (this.positionOutOfWindow(e.pageX, e.pageY)) return
+    const resizeDiffX = e.pageX - this.originMouseX
+    const resizeDiffY = e.pageY - this.originMouseY
+    console.log(e.pageX, e.pageY)
+    let fixedTop = false
+    let fixedLeft = false
+    let width = this.size.width
+    let height = this.size.height
+    switch (this.resizeDirection) {
+      case 'n':
+        height -= resizeDiffY
+        fixedTop = true
+        break
+      case 'e':
+        width += resizeDiffX
+        break
+      case 'w':
+        width -= resizeDiffX
+        fixedLeft = true
+        break
+      case 's':
+        height += resizeDiffY
+        break
+      case 'ne':
+        width += resizeDiffX
+        height -= resizeDiffY
+        fixedTop = true
+        break
+      case 'nw':
+        width -= resizeDiffX
+        height -= resizeDiffY
+        fixedTop = true
+        fixedLeft = true
+        break
+      case 'se':
+        width += resizeDiffX
+        height += resizeDiffY
+        break
+      case 'sw':
+        width -= resizeDiffX
+        height += resizeDiffY
+        fixedLeft = true
+        break
+      default:
+    }
+    if (width > this.miniumSize.width) {
+      this.tempSize.width = width
+      if (fixedLeft) {
+        this.el.style.left = this.originX + resizeDiffX + 'px'
+      }
+    }
+
+    if (height > this.miniumSize.height) {
+      this.tempSize.height = height
+      if (fixedTop) {
+        this.el.style.top = this.originY + resizeDiffY + 'px'
+      }
+    }
+    this.tempPos.top = this.el.style.top
+    this.tempPos.left = this.el.style.left
+    this.setSize(this.tempSize)
+  }
+
+  private onMouseMove = (e: MouseEvent): void => {
+    if (this.isDragging) {
+      this.handleDragging(e)
+    } else if (this.isResizing) {
+      this.handleResizing(e)
+    }
+  }
+
   private onMouseUp = (): void => {
-    this.isMouseDown = false
+    if (this.isResizing) {
+      this.size.width = this.tempSize.width
+      this.size.height = this.tempSize.height
+    }
+    this.isDragging = false
+    this.isResizing = false
     this.el.style.cursor = 'initial'
     this.el.style.userSelect = 'unset'
   }
 
-  private setListener (): void {
-    const header = this.el.querySelector('.panel-header') as HTMLElement
-    if (header) {
-      header.addEventListener('mousedown', this.onMouseDown)
-    }
-    this.el.addEventListener('mousedown', this.onPanelSelect)
+  private setListener = (): void => {
     document.addEventListener('mousemove', this.onMouseMove)
     document.addEventListener('mouseup', this.onMouseUp)
   }
 
-  public normalize (): void {
+  public normalize = (): void => {
     const content = this.el.querySelector('.panel-content') as HTMLElement
     content.style.display = 'block'
     this.status = 'normalized'
@@ -152,13 +257,13 @@ class Panel {
     this.setSize(this.size)
   }
 
-  public minimize (): void {
-    this.isMouseDown = false
+  public minimize = (): void => {
+    this.isDragging = false
     this.status = 'minimized'
   }
 
-  public maximize (): void {
-    this.isMouseDown = false
+  public maximize = (): void => {
+    this.isDragging = false
     this.status = 'maximized'
 
     const maxSize: Size = {
@@ -170,12 +275,7 @@ class Panel {
     this.el.style.left = 0 + ''
   }
 
-  public close (): void {
-    const header = this.el.querySelector('.panel-header') as HTMLElement
-    if (header) {
-      header.removeEventListener('mousedown', this.onMouseDown)
-    }
-    this.el.removeEventListener('mousedown', this.onPanelSelect)
+  public close = (): void => {
     document.removeEventListener('mousemove', this.onMouseMove)
     document.removeEventListener('mouseup', this.onMouseUp)
     this.zIndexHelper.deleteFromMap(this.el)

@@ -1,18 +1,28 @@
 <template lang="pug">
 Teleport(to="body")
-  .panel(ref="panelRef" v-show="!isMinimized")
-    .panel-header
+  .panel(
+    v-show="!isMinimized"
+    ref="panelRef"
+    @mousedown="onPanelSelect"
+  )
+    .panel-header(
+      :class="`${!isNormalized ? 'no-handler': ''}`"
+      @mousedown="onHeaderDown"
+    )
       .title header title
       .toolbar
-        .controller.minimize(v-show="!isMinimized"
+        .controller.minimize(
+          v-show="!isMinimized"
           @click="onMinimize"
         )
           .i.mdi-window-minimize
-        .controller.normalize(v-show="!isNormalized"
+        .controller.normalize(
+          v-show="!isNormalized"
           @click="onNormalize"
         )
           .i.mdi-window-restore
-        .controller.maximize(v-show="!isMaximized"
+        .controller.maximize(
+          v-show="!isMaximized"
           @click="onMaximize"
         )
           .i.mdi-window-maximize
@@ -20,16 +30,24 @@ Teleport(to="body")
           .i.mdi-window-close
     .panel-content
       slot
+    .handler(
+      v-for="handler in handlers"
+      :key="handler"
+      :class="`handler-${handler} ${!isNormalized ? 'no-handler' : ''}`"
+      @mousedown="onHandlerDown($event, handler)"
+    )
 Teleport(to="#panel-minimize-container")
   MinimizePanel(v-show="isMinimized")
-    .panel-header
+    .panel-header(:class="`${!isNormalized ? 'no-handler': ''}`")
       .title header title
       .toolbar
-        .controller.normalize(v-show="!isNormalized"
+        .controller.normalize(
+          v-show="!isNormalized"
           @click="onNormalize"
         )
           .i.mdi-window-restore
-        .controller.maximize(v-show="!isMaximized"
+        .controller.maximize(
+          v-show="!isMaximized"
           @click="onMaximize"
         )
           .i.mdi-window-maximize
@@ -37,7 +55,7 @@ Teleport(to="#panel-minimize-container")
           .i.mdi-window-close
 </template>
 <script lang="ts">
-import { defineComponent, ref, onMounted, onBeforeUnmount, computed } from 'vue'
+import { defineComponent, ref, onMounted, onBeforeUnmount } from 'vue'
 import Panel from '@/panel/Panel'
 import MinimizePanel from './MinimizePanel.vue'
 
@@ -58,6 +76,7 @@ export default defineComponent({
     const isMinimized = ref<boolean>(false)
     const isMaximized = ref<boolean>(false)
     const isNormalized = ref<boolean>(true)
+    const handlers = ref<string[]>(['n', 'e', 'w', 's', 'nw', 'ne', 'sw', 'se'])
     let panel: Panel
 
     onMounted(() => {
@@ -73,6 +92,21 @@ export default defineComponent({
       onClose()
       console.log('unmount')
     })
+
+    const onPanelSelect = (e: MouseEvent): void => {
+      if (!isNormalized.value) return
+      panel.onPanelSelect(e)
+    }
+
+    const onHeaderDown = (e: MouseEvent): void => {
+      if (!isNormalized.value) return
+      panel.onHeaderDown(e)
+    }
+
+    const onHandlerDown = (e: MouseEvent, handler: string): void => {
+      if (!isNormalized.value) return
+      panel.onHandlerDown(e, handler)
+    }
 
     const onClose = (): void => {
       emit('close')
@@ -103,6 +137,10 @@ export default defineComponent({
       isMaximized,
       isMinimized,
       isNormalized,
+      handlers,
+      onPanelSelect,
+      onHandlerDown,
+      onHeaderDown,
       onClose,
       onMaximize,
       onMinimize,
@@ -155,6 +193,73 @@ export default defineComponent({
     flex: 1;
     overflow: auto;
     background: #fff;
+  }
+
+  .handler {
+    position: absolute;
+    &-n,
+    &-s {
+      width: 90%;
+      height: 10px;
+    }
+    &-n {
+      top: -5px;
+      cursor: n-resize;
+    }
+
+    &-s {
+      bottom: -5px;
+      cursor: s-resize;
+    }
+
+    &-e,
+    &-w {
+      width: 10px;
+      height: 90%;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    &-e {
+      right: -5px;
+      cursor: e-resize;
+    }
+    &-w {
+      left: -5px;
+      cursor: w-resize;
+    }
+
+    &-nw,
+    &-ne,
+    &-sw,
+    &-se {
+      width: 10px;
+      height: 10px;
+    }
+
+    &-nw {
+      top: -5px;
+      left: -5px;
+      cursor: nw-resize;
+    }
+    &-ne {
+      top: -5px;
+      right: -5px;
+      cursor: ne-resize;
+    }
+    &-sw {
+      bottom: -5px;
+      left: -5px;
+      cursor: sw-resize;
+    }
+    &-se {
+      bottom: -5px;
+      right: -5px;
+      cursor: se-resize;
+    }
+  }
+  .no-handler {
+    cursor: default;
   }
 }
 </style>
