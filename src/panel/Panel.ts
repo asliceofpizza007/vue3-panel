@@ -158,48 +158,30 @@ class Panel {
     if (this.positionOutOfWindow(e.pageX, e.pageY)) return
     const resizeDiffX = e.pageX - this.originMouseX
     const resizeDiffY = e.pageY - this.originMouseY
-    console.log(e.pageX, e.pageY)
     let fixedTop = false
     let fixedLeft = false
     let width = this.size.width
     let height = this.size.height
-    switch (this.resizeDirection) {
-      case 'n':
-        height -= resizeDiffY
-        fixedTop = true
-        break
-      case 'e':
-        width += resizeDiffX
-        break
-      case 'w':
-        width -= resizeDiffX
-        fixedLeft = true
-        break
-      case 's':
-        height += resizeDiffY
-        break
-      case 'ne':
-        width += resizeDiffX
-        height -= resizeDiffY
-        fixedTop = true
-        break
-      case 'nw':
-        width -= resizeDiffX
-        height -= resizeDiffY
-        fixedTop = true
-        fixedLeft = true
-        break
-      case 'se':
-        width += resizeDiffX
-        height += resizeDiffY
-        break
-      case 'sw':
-        width -= resizeDiffX
-        height += resizeDiffY
-        fixedLeft = true
-        break
-      default:
-    }
+    const directions: string[] = [...this.resizeDirection]
+    directions.forEach(direction => {
+      switch (direction) {
+        case 'n':
+          height -= resizeDiffY
+          fixedTop = true
+          break
+        case 'e':
+          width += resizeDiffX
+          break
+        case 'w':
+          width -= resizeDiffX
+          fixedLeft = true
+          break
+        case 's':
+          height += resizeDiffY
+          break
+        default:
+      }
+    })
     if (width > this.miniumSize.width) {
       this.tempSize.width = width
       if (fixedLeft) {
