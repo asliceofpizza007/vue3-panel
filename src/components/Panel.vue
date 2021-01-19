@@ -110,6 +110,7 @@ export default defineComponent({
 
     const onClose = (): void => {
       emit('close')
+      panel.close()
     }
 
     const onMaximize = (): void => {
