@@ -14,6 +14,7 @@ export default defineComponent({
   ::v-deep(.panel-header){
     border: 1px solid #ddd;
     border-bottom: unset;
+    cursor: default;
   }
 }
 </style>
