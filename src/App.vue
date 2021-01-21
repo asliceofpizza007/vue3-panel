@@ -1,18 +1,15 @@
 <template lang="pug">
 button(@click="AddPanel") add panel
 Test
-Panel(v-for="panel in panels"
-  :key="panel.id"
-  :config="panel"
-  @close="handleClose(panel.id)"
+PanelGroup(
+  :panels="panels"
+  @close="handleClose"
 )
-  Test
 </template>
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
-import Panel from './components/Panel.vue'
-import MinizeContainer from './components/PanelMinimizeContainer.vue'
+import PanelGroup from './components/PanelGroup.vue'
 import Test from '@/views/panelContent/panel.vue'
 
 type Config = {
@@ -22,8 +19,7 @@ type Config = {
 export default defineComponent({
   name: 'App',
   components: {
-    MinizeContainer,
-    Panel,
+    PanelGroup,
     Test
   },
   setup () {
