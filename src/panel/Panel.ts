@@ -41,11 +41,13 @@ class Panel {
   private zIndexHelper: ZIndexHelper
 
   constructor (
-    private el: HTMLElement,
+    private el: HTMLElement | null,
     private size: Size
   ) {
     this.zIndexHelper = ZIndexHelper.useZIndexHelper()
-    this.zIndexHelper.update(this.el)
+    if (this.el !== null) {
+      this.zIndexHelper.update(this.el)
+    }
     this.setZindex()
     this.setSize(size)
     this.setContainer()
@@ -53,11 +55,13 @@ class Panel {
   }
 
   private setZindex = (): void => {
+    if (this.el === null) return
     const index = this.zIndexHelper.getIndex(this.el)
     this.el.style.zIndex = index + ''
   }
 
   private setSize (size: Size): void {
+    if (this.el === null) return
     this.el.style.width = size.width + 'px'
     this.el.style.height = size.height + 'px'
   }
@@ -72,6 +76,7 @@ class Panel {
   }
 
   private setMoveState = (e: MouseEvent): void => {
+    if (this.el === null) return
     this.isDragging = true
     this.el.style.userSelect = 'none'
     this.setContainer()
@@ -88,6 +93,7 @@ class Panel {
   }
 
   public onHandlerDown = (e: MouseEvent, handler: string): void => {
+    if (this.el === null) return
     e.stopPropagation()
     this.zIndexHelper.refreshZIndex(this.el)
     this.setZindex()
@@ -102,6 +108,7 @@ class Panel {
   }
 
   public onPanelSelect = (e: MouseEvent): void => {
+    if (this.el === null) return
     this.zIndexHelper.refreshZIndex(this.el)
     this.setZindex()
     if (e.ctrlKey) {
@@ -115,6 +122,7 @@ class Panel {
   }
 
   private handleDragging = (e: MouseEvent): void => {
+    if (this.el === null) return
     const {
       clientX,
       clientY
@@ -156,6 +164,7 @@ class Panel {
 
   private handleResizing = (e: MouseEvent): void => {
     if (this.positionOutOfWindow(e.pageX, e.pageY)) return
+    if (this.el === null) return
     const resizeDiffX = e.pageX - this.originMouseX
     const resizeDiffY = e.pageY - this.originMouseY
     let fixedTop = false
@@ -209,6 +218,7 @@ class Panel {
   }
 
   private onMouseUp = (): void => {
+    if (this.el === null) return
     if (this.isResizing) {
       this.size.width = this.tempSize.width
       this.size.height = this.tempSize.height
@@ -225,8 +235,7 @@ class Panel {
   }
 
   public normalize = (): void => {
-    const content = this.el.querySelector('.panel-content') as HTMLElement
-    content.style.display = 'block'
+    if (this.el === null) return
     this.status = 'normalized'
     this.zIndexHelper.refreshZIndex(this.el)
     this.setZindex()
@@ -245,6 +254,7 @@ class Panel {
   }
 
   public maximize = (): void => {
+    if (this.el === null) return
     this.isDragging = false
     this.status = 'maximized'
 
@@ -258,9 +268,13 @@ class Panel {
   }
 
   public close = (): void => {
+    if (this.el === null) return
     document.removeEventListener('mousemove', this.onMouseMove)
     document.removeEventListener('mouseup', this.onMouseUp)
     this.zIndexHelper.deleteFromMap(this.el)
+    setTimeout(() => {
+      this.el = null
+    }, 0)
   }
 }
 

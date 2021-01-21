@@ -13,11 +13,19 @@ class ZIndexHelper {
   }
 
   public update (el: HTMLElement): void {
-    this.map.set(el, this.zIndex++)
+    let panel = el as HTMLElement | null
+    if (panel === null) return
+    this.map.set(panel, this.zIndex++)
+    panel = null
   }
 
   public getIndex (el: HTMLElement): number {
-    const index = this.map.get(el)
+    let panel = el as HTMLElement | null
+    let index
+    if (panel !== null) {
+      index = this.map.get(panel)
+      panel = null
+    }
     if (index) {
       return index
     }
@@ -25,14 +33,21 @@ class ZIndexHelper {
   }
 
   public deleteFromMap (el: HTMLElement): void {
+    let panel = el as HTMLElement | null
+    if (panel === null) return
     this.map.delete(el)
+    panel = null
   }
 
   public refreshZIndex (el: HTMLElement): void {
-    const currentIndex = this.map.get(el)
-    if (currentIndex && currentIndex !== this.zIndex - 1) {
-      this.map.delete(el)
-      this.update(el)
+    let panel = el as HTMLElement | null
+    if (panel !== null) {
+      const currentIndex = this.map.get(el)
+      if (currentIndex && currentIndex !== this.zIndex - 1) {
+        this.map.delete(el)
+        this.update(el)
+      }
+      panel = null
     }
   }
 }

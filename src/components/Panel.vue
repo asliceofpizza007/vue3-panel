@@ -71,8 +71,8 @@ export default defineComponent({
     }
   },
   emits: ['close'],
-  setup (prop, { emit }) {
-    const panelRef = ref<HTMLElement>()
+  setup (props, { emit }) {
+    const panelRef = ref<HTMLElement | null>()
     const isMinimized = ref<boolean>(false)
     const isMaximized = ref<boolean>(false)
     const isNormalized = ref<boolean>(true)
@@ -90,6 +90,7 @@ export default defineComponent({
     })
     onBeforeUnmount(() => {
       onClose()
+      panelRef.value = null
       console.log('unmount')
     })
 
