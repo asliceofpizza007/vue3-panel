@@ -24,6 +24,13 @@ export default defineComponent({
   },
   setup () {
     const panels = ref([] as Config[])
+    // const width = ref<number>(0)
+    // const height = ref<number>(0)
+    // const top = ref<number>(0)
+    // const left = ref<number>(0)
+    // const beforeMax = ref<string>('')
+    // const beforeMin = ref<string>('')
+    // const beforeNor = ref<string>('')
     let counter = 1
     const AddPanel = (): void => {
       const config: Config = {

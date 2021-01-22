@@ -55,9 +55,13 @@ Teleport(to="#panel-minimize-container")
           .i.mdi-window-close
 </template>
 <script lang="ts">
-import { defineComponent, ref, onMounted, onBeforeUnmount } from 'vue'
+import { defineComponent, ref, onMounted, onBeforeUnmount, PropType } from 'vue'
 import Panel from '@/panel/Panel'
 import MinimizePanel from './MinimizePanel.vue'
+
+type Config = {
+  id: number
+}
 
 export default defineComponent({
   name: 'Panel',
@@ -65,9 +69,9 @@ export default defineComponent({
     MinimizePanel
   },
   props: {
-    // eslint-disable-next-line vue/require-default-prop
     config: {
-      type: Object
+      type: Object as PropType<Config>,
+      default: {}
     }
   },
   emits: ['close'],
