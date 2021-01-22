@@ -1,4 +1,5 @@
 import ZIndexHelper from './ZIndexHelper'
+import PanelHelper from './PanelHelper'
 
 type Size = {
   width: number
@@ -11,8 +12,8 @@ type Position = {
 }
 
 class Panel {
-  private isDragging = false
-  private isResizing = false
+  public isDragging = false
+  public isResizing = false
   private status = 'normalized'
   private containerWidth = 0
   private containerHeight = 0
@@ -38,20 +39,20 @@ class Panel {
     height: 360
   }
 
-  private zIndexHelper: ZIndexHelper
+  private zIndexHelper: ZIndexHelper = ZIndexHelper.useZIndexHelper()
+  private PanelHelper: PanelHelper = PanelHelper.usePanelHelper()
 
   constructor (
     private el: HTMLElement | null,
     private size: Size
   ) {
-    this.zIndexHelper = ZIndexHelper.useZIndexHelper()
     if (this.el !== null) {
       this.zIndexHelper.update(this.el)
     }
+    this.PanelHelper.addPanel(this)
     this.setZindex()
     this.setSize(size)
     this.setContainer()
-    this.setListener()
   }
 
   private setZindex = (): void => {
@@ -209,7 +210,7 @@ class Panel {
     this.setSize(this.tempSize)
   }
 
-  private onMouseMove = (e: MouseEvent): void => {
+  public onMouseMove = (e: MouseEvent): void => {
     if (this.isDragging) {
       this.handleDragging(e)
     } else if (this.isResizing) {
@@ -217,7 +218,7 @@ class Panel {
     }
   }
 
-  private onMouseUp = (): void => {
+  public onMouseUp = (): void => {
     if (this.el === null) return
     if (this.isResizing) {
       this.size.width = this.tempSize.width
@@ -229,10 +230,10 @@ class Panel {
     this.el.style.userSelect = 'unset'
   }
 
-  private setListener = (): void => {
-    document.addEventListener('mousemove', this.onMouseMove)
-    document.addEventListener('mouseup', this.onMouseUp)
-  }
+  // private setListener = (): void => {
+  //   document.addEventListener('mousemove', this.onMouseMove)
+  //   document.addEventListener('mouseup', this.onMouseUp)
+  // }
 
   public normalize = (): void => {
     if (this.el === null) return
@@ -269,11 +270,10 @@ class Panel {
 
   public close = (): void => {
     if (this.el === null) return
-    document.removeEventListener('mousemove', this.onMouseMove)
-    document.removeEventListener('mouseup', this.onMouseUp)
     this.zIndexHelper.deleteFromMap(this.el)
     setTimeout(() => {
       this.el = null
+      this.PanelHelper.closePanel(this)
     }, 0)
   }
 }
