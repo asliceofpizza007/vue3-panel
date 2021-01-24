@@ -50,6 +50,7 @@ class Panel {
       this.zIndexHelper.update(this.el)
     }
     this.PanelHelper.addPanel(this)
+    this.PanelHelper.setTopPanel(this)
     this.setZindex()
     this.setSize(size)
     this.setContainer()
@@ -97,6 +98,7 @@ class Panel {
     if (this.el === null) return
     e.stopPropagation()
     this.zIndexHelper.refreshZIndex(this.el)
+    this.PanelHelper.setTopPanel(this)
     this.setZindex()
 
     this.isResizing = true
@@ -111,6 +113,7 @@ class Panel {
   public onPanelSelect = (e: MouseEvent): void => {
     if (this.el === null) return
     this.zIndexHelper.refreshZIndex(this.el)
+    this.PanelHelper.setTopPanel(this)
     this.setZindex()
     if (e.ctrlKey) {
       this.el.style.cursor = 'move'
@@ -119,6 +122,7 @@ class Panel {
   }
 
   public onHeaderDown = (e: MouseEvent): void => {
+    this.PanelHelper.setTopPanel(this)
     this.setMoveState(e)
   }
 
