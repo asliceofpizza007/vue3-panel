@@ -1,20 +1,12 @@
 import ZIndexHelper from './ZIndexHelper'
 import PanelHelper from './PanelHelper'
-
-type Size = {
-  width: number
-  height: number
-}
-
-type Position = {
-  top: string
-  left: string
-}
+import { Size, Position, Config } from '@/type'
 
 class Panel {
   public isDragging = false
   public isResizing = false
   private status = 'normalized'
+  private size: Size
   private containerWidth = 0
   private containerHeight = 0
   private diffX = 0
@@ -44,15 +36,24 @@ class Panel {
 
   constructor (
     private el: HTMLElement | null,
-    private size: Size
+    private config: Config
   ) {
     if (this.el !== null) {
       this.zIndexHelper.update(this.el)
     }
     this.PanelHelper.addPanel(this)
     this.PanelHelper.setTopPanel(this)
+    const {
+      size,
+      position
+    } = this.config
+    this.size = {
+      width: Number(size.width),
+      height: Number(size.height)
+    }
     this.setZindex()
-    this.setSize(size)
+    this.setSize(this.size)
+    this.setPotition(position)
     this.setContainer()
   }
 
@@ -66,6 +67,16 @@ class Panel {
     if (this.el === null) return
     this.el.style.width = size.width + 'px'
     this.el.style.height = size.height + 'px'
+  }
+
+  private setPotition (position: Position): void {
+    if (this.el === null) return
+    const {
+      top,
+      left
+    } = position
+    this.el.style.top = top + 'px'
+    this.el.style.left = left + 'px'
   }
 
   private setContainer = (): void => {
@@ -155,10 +166,9 @@ class Panel {
       newLeft = this.containerWidth - width
     }
 
-    this.el.style.top = newTop + 'px'
-    this.el.style.left = newLeft + 'px'
-    this.tempPos.top = this.el.style.top
-    this.tempPos.left = this.el.style.left
+    this.setPotition({ top: newTop, left: newLeft })
+    this.tempPos.top = newTop
+    this.tempPos.left = newLeft
   }
 
   private positionOutOfWindow (x: number, y: number): boolean {
@@ -234,11 +244,6 @@ class Panel {
     this.el.style.userSelect = 'unset'
   }
 
-  // private setListener = (): void => {
-  //   document.addEventListener('mousemove', this.onMouseMove)
-  //   document.addEventListener('mouseup', this.onMouseUp)
-  // }
-
   public normalize = (): void => {
     if (this.el === null) return
     this.status = 'normalized'
@@ -248,8 +253,8 @@ class Panel {
       top,
       left
     } = this.tempPos
-    this.el.style.top = top
-    this.el.style.left = left
+    this.el.style.top = String(top)
+    this.el.style.left = String(left)
     this.setSize(this.size)
   }
 

@@ -56,7 +56,7 @@ class PanelHelper {
     if (this.panels.length === 0) {
       document.removeEventListener('mousemove', this.handleMove)
       document.removeEventListener('mouseup', this.handleUp)
-      this.panels = null
+      this.panels = []
     }
   }
 }

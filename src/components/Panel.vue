@@ -9,7 +9,7 @@ Teleport(to="body")
       :class="`${!isNormalized ? 'no-handler': ''}`"
       @mousedown="onHeaderDown"
     )
-      .title header title
+      .title {{ config.headerTitle }}
       .toolbar
         .controller.minimize(
           v-show="!isMinimized"
@@ -31,7 +31,7 @@ Teleport(to="body")
     .panel-content
       slot
     .handler(
-      v-for="handler in handlers"
+      v-for="handler in config.resizeHandler"
       :key="handler"
       :class="`handler-${handler} ${!isNormalized ? 'no-handler' : ''}`"
       @mousedown="onHandlerDown($event, handler)"
@@ -39,7 +39,7 @@ Teleport(to="body")
 Teleport(to="#panel-minimize-container")
   MinimizePanel(v-show="isMinimized")
     .panel-header(:class="`${!isNormalized ? 'no-handler': ''}`")
-      .title header title
+      .title {{ config.headerTitle }}
       .toolbar
         .controller.normalize(
           v-show="!isNormalized"
@@ -55,12 +55,29 @@ Teleport(to="#panel-minimize-container")
           .i.mdi-window-close
 </template>
 <script lang="ts">
-import { defineComponent, ref, onMounted, onBeforeUnmount, PropType } from 'vue'
+import { defineComponent, ref, onMounted, onBeforeUnmount, PropType, toRefs } from 'vue'
 import Panel from '@/panel/Panel'
 import MinimizePanel from './MinimizePanel.vue'
+import usePanel from '@/hooks/usePanel'
+import { Config } from '@/type'
 
-type Config = {
-  id: number
+const defaultConfig: Config = {
+  id: 'default',
+  // component: '',
+  headerTitle: 'headerTitle',
+  size: {
+    width: 600,
+    height: 400
+  },
+  position: {
+    top: '',
+    left: ''
+  },
+  resizeHandler: ['n', 'e', 'w', 's', 'nw', 'ne', 'sw', 'se'],
+  closeOnEscape: false,
+  onBeforeMaximize: null,
+  onBeforeMinimize: null,
+  onBeforeNormalize: null
 }
 
 export default defineComponent({
@@ -74,26 +91,33 @@ export default defineComponent({
       default: {}
     }
   },
-  emits: ['close'],
-  setup (props, { emit }) {
+  setup (props) {
     const panelRef = ref<HTMLElement | null>()
     const isMinimized = ref<boolean>(false)
     const isMaximized = ref<boolean>(false)
     const isNormalized = ref<boolean>(true)
-    const handlers = ref<string[]>(['n', 'e', 'w', 's', 'nw', 'ne', 'sw', 'se'])
     let panel: Panel
+
+    const { config } = toRefs(props)
+
+    const {
+      removePanel
+    } = usePanel()
 
     onMounted(() => {
       const size = {
         width: 600,
         height: 400
       }
+      const conf = {
+        ...defaultConfig,
+        ...config.value
+      }
       if (panelRef.value) {
-        panel = new Panel(panelRef.value, size)
+        panel = new Panel(panelRef.value, conf)
       }
     })
     onBeforeUnmount(() => {
-      onClose()
       panelRef.value = null
       console.log('unmount')
     })
@@ -114,8 +138,8 @@ export default defineComponent({
     }
 
     const onClose = (): void => {
-      emit('close')
       panel.close()
+      removePanel(config.value.id)
     }
 
     const onMaximize = (): void => {
@@ -143,7 +167,6 @@ export default defineComponent({
       isMaximized,
       isMinimized,
       isNormalized,
-      handlers,
       onPanelSelect,
       onHandlerDown,
       onHeaderDown,
