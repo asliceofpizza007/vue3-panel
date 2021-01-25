@@ -1,14 +1,5 @@
-import { ref, Ref } from 'vue'
-
-type Config = {
-  id: number
-}
-
-interface UsePanel {
-  configs: Ref<Config[]>
-  addPanel: (config: Config) => void
-  removePanel: (id: number) => void
-}
+import { ref } from 'vue'
+import { Config, UsePanel } from '@/type'
 
 const configs = ref<Config[]>([])
 
@@ -16,9 +7,9 @@ const usePanel = (): UsePanel => {
   const addPanel = (config: Config): void => {
     configs.value.push(config)
   }
-  const removePanel = (id: number): void => {
+  const removePanel = (id: string): void => {
     const index = configs.value.findIndex(config => config.id === id)
-    if (index) {
+    if (index !== -1) {
       configs.value.splice(index, 1)
     }
   }
