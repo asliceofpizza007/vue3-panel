@@ -2,6 +2,7 @@ import Panel from './Panel'
 
 class PanelHelper {
   public panels: Panel[] | null = []
+  private panelOnTop: Panel | null = null
 
   private constructor () {
     // pass
@@ -13,9 +14,15 @@ class PanelHelper {
     return this.instance
   }
 
+  public setTopPanel = (panel: Panel): void => {
+    this.panelOnTop = panel
+  }
+
+  private getTopPanel = (): (Panel | null) => this.panelOnTop
+
   private handleMove = (e: MouseEvent): void => {
     if (this.panels === null) return
-    let match = this.panels.find(item => item.isDragging || item.isResizing) as Panel | null
+    let match = this.getTopPanel()
     if (match) {
       match.onMouseMove(e)
       match = null
@@ -24,7 +31,7 @@ class PanelHelper {
 
   private handleUp = (): void => {
     if (this.panels === null) return
-    let match = this.panels.find(item => item.isDragging || item.isResizing) as Panel | null
+    let match = this.getTopPanel()
     if (match) {
       match.onMouseUp()
       match = null
