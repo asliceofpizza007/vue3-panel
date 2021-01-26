@@ -93,6 +93,7 @@ class Panel {
     if (this.el === null) return
     this.isDragging = true
     this.el.style.userSelect = 'none'
+    this.el.style.opacity = '0.8'
     this.setContainer()
     const {
       offsetTop,
@@ -243,6 +244,7 @@ class Panel {
     this.isResizing = false
     this.el.style.cursor = 'initial'
     this.el.style.userSelect = 'unset'
+    this.el.style.opacity = '1'
   }
 
   public normalize = async (): Promise<void> => {
