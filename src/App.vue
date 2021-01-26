@@ -25,7 +25,7 @@
       id="header_title"
     )
   .row
-    label(for="size_width") 寬度：
+    label(for="size_width") Width：
     input(
       v-model="width"
       type="text"
@@ -33,7 +33,7 @@
       id="size_width"
     )
   .row
-    label(for="size_height") 高度：
+    label(for="size_height") Height：
     input(
       v-model="height"
       type="text"
