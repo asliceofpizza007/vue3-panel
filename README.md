@@ -1,5 +1,8 @@
 # vue3-panel
 
+## Live Demo
+[Demo](https://asliceofpizza007.github.io/vue3-panel/)
+
 ## Project setup
 ```
 npm install
