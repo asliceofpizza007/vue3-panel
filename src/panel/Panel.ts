@@ -5,7 +5,7 @@ import { Size, Position, Config } from '@/type'
 class Panel {
   public isDragging = false
   public isResizing = false
-  private status = 'normalized'
+  public status = 'normalized'
   private size: Size
   private containerWidth = 0
   private containerHeight = 0
@@ -36,21 +36,22 @@ class Panel {
 
   constructor (
     private el: HTMLElement | null,
-    private config: Config
+    private readonly config: Config
   ) {
-    if (this.el !== null) {
-      this.zIndexHelper.update(this.el)
-    }
-    this.PanelHelper.addPanel(this)
-    this.PanelHelper.setTopPanel(this)
     const {
+      id,
       size,
       position
     } = this.config
+    this.zIndexHelper.update(id)
+    this.PanelHelper.addPanel(this)
+    this.PanelHelper.setTopPanel(this)
     this.size = {
-      width: Number(size.width),
-      height: Number(size.height)
+      width: Number(size.width) < this.miniumSize.width ? this.miniumSize.width : Number(size.width),
+      height: Number(size.height) < this.miniumSize.height ? this.miniumSize.height : Number(size.height)
     }
+    this.tempSize.width = this.size.width
+    this.tempSize.height = this.size.height
     this.setZindex()
     this.setSize(this.size)
     this.setPotition(position)
@@ -59,7 +60,7 @@ class Panel {
 
   private setZindex = (): void => {
     if (this.el === null) return
-    const index = this.zIndexHelper.getIndex(this.el)
+    const index = this.zIndexHelper.getIndex(this.config.id)
     this.el.style.zIndex = index + ''
   }
 
@@ -75,8 +76,8 @@ class Panel {
       top,
       left
     } = position
-    this.el.style.top = top + 'px'
-    this.el.style.left = left + 'px'
+    this.el.style.top = `${top > 0 ? top : 0}px`
+    this.el.style.left = `${left > 0 ? left : 0}px`
   }
 
   private setContainer = (): void => {
@@ -108,7 +109,7 @@ class Panel {
   public onHandlerDown = (e: MouseEvent, handler: string): void => {
     if (this.el === null) return
     e.stopPropagation()
-    this.zIndexHelper.refreshZIndex(this.el)
+    this.zIndexHelper.refreshZIndex(this.config.id)
     this.PanelHelper.setTopPanel(this)
     this.setZindex()
 
@@ -123,7 +124,7 @@ class Panel {
 
   public onPanelSelect = (e: MouseEvent): void => {
     if (this.el === null) return
-    this.zIndexHelper.refreshZIndex(this.el)
+    this.zIndexHelper.refreshZIndex(this.config.id)
     this.PanelHelper.setTopPanel(this)
     this.setZindex()
     if (e.ctrlKey) {
@@ -244,27 +245,48 @@ class Panel {
     this.el.style.userSelect = 'unset'
   }
 
-  public normalize = (): void => {
+  public normalize = async (): Promise<void> => {
     if (this.el === null) return
+    await new Promise(resolve => {
+      if (this.config.onBeforeNormalize !== null) {
+        resolve(this.config.onBeforeNormalize(this))
+      } else {
+        resolve(true)
+      }
+    })
     this.status = 'normalized'
-    this.zIndexHelper.refreshZIndex(this.el)
+    this.zIndexHelper.refreshZIndex(this.config.id)
     this.setZindex()
     const {
       top,
       left
     } = this.tempPos
-    this.el.style.top = String(top)
-    this.el.style.left = String(left)
+    this.el.style.top = top + 'px'
+    this.el.style.left = left + 'px'
     this.setSize(this.size)
   }
 
-  public minimize = (): void => {
+  public minimize = async (): Promise<void> => {
+    await new Promise(resolve => {
+      if (this.config.onBeforeMinimize !== null) {
+        resolve(this.config.onBeforeMinimize(this))
+      } else {
+        resolve(true)
+      }
+    })
     this.isDragging = false
     this.status = 'minimized'
   }
 
-  public maximize = (): void => {
+  public maximize = async (): Promise<void> => {
     if (this.el === null) return
+    await new Promise(resolve => {
+      if (this.config.onBeforeMaximize !== null) {
+        resolve(this.config.onBeforeMaximize(this))
+      } else {
+        resolve(true)
+      }
+    })
     this.isDragging = false
     this.status = 'maximized'
 
@@ -279,7 +301,7 @@ class Panel {
 
   public close = (): void => {
     if (this.el === null) return
-    this.zIndexHelper.deleteFromMap(this.el)
+    this.zIndexHelper.deleteFromMap(this.config.id)
     setTimeout(() => {
       this.el = null
       this.PanelHelper.closePanel(this)
