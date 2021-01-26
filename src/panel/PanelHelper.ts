@@ -1,8 +1,11 @@
 import Panel from './Panel'
+import ZIndexHelper from './ZIndexHelper'
+import usePanel from '@/hooks/usePanel'
 
 class PanelHelper {
   public panels: Panel[] | null = []
   private panelOnTop: Panel | null = null
+  private zIndexHelper: ZIndexHelper = ZIndexHelper.useZIndexHelper()
 
   private constructor () {
     // pass
@@ -38,11 +41,25 @@ class PanelHelper {
     }
   }
 
+  private handleEscape = (e: KeyboardEvent): void => {
+    if (e.keyCode !== 27) return
+    const {
+      configs,
+      removePanel
+    } = usePanel()
+    const id = this.zIndexHelper.getTopestId()
+    const currConfig = configs.value.find(config => config.id === id)
+    if (currConfig?.closeOnEscape && id !== undefined) {
+      removePanel(id)
+    }
+  }
+
   public addPanel (panel: Panel): void {
     if (this.panels === null) return
     if (this.panels.length === 0) {
       document.addEventListener('mousemove', this.handleMove)
       document.addEventListener('mouseup', this.handleUp)
+      document.addEventListener('keydown', this.handleEscape)
     }
     this.panels.push(panel)
   }
@@ -56,6 +73,7 @@ class PanelHelper {
     if (this.panels.length === 0) {
       document.removeEventListener('mousemove', this.handleMove)
       document.removeEventListener('mouseup', this.handleUp)
+      document.removeEventListener('keydown', this.handleEscape)
       this.panels = []
     }
   }
