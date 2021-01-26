@@ -8,6 +8,7 @@ Teleport(to="body")
     .panel-header(
       :class="`${status !== 'normalized' ? 'no-handler': ''}`"
       @mousedown="onHeaderDown"
+      @dblclick="handlMaximize"
     )
       .title {{ config.headerTitle }}
       .toolbar
@@ -152,6 +153,14 @@ export default defineComponent({
       await panel.minimize()
       status.value = panel.status
     }
+
+    const handlMaximize = (): void => {
+      if (status.value === 'normalized') {
+        onMaximize()
+      } else if (status.value === 'maximized') {
+        onNormalize()
+      }
+    }
     return {
       panelRef,
       status,
@@ -161,7 +170,8 @@ export default defineComponent({
       onClose,
       onMaximize,
       onMinimize,
-      onNormalize
+      onNormalize,
+      handlMaximize
     }
   }
 })

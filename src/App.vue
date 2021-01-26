@@ -23,6 +23,7 @@
       type="text"
       name="header_title"
       id="header_title"
+      placeholder="title for panel header"
     )
   .row
     label(for="size_width") Width：
@@ -31,6 +32,7 @@
       type="text"
       name="size_width"
       id="size_width"
+      placeholder="panel width must be numerical string or number"
     )
   .row
     label(for="size_height") Height：
@@ -39,6 +41,7 @@
       type="text"
       name="size_height"
       id="size_height"
+      placeholder="panel height must be numerical string or number"
     )
   .row
     label(for="poritions_top") Top：
@@ -47,6 +50,7 @@
       type="text"
       name="poritions_top"
       id="poritions_top"
+      placeholder="position top must be numerical string or number"
     )
   .row
     label(for="position_left") Left：
@@ -55,6 +59,7 @@
       type="text"
       name="position_left"
       id="position_left"
+      placeholder="position left must be numerical string or number"
     )
   .row
     label Handler：
@@ -83,14 +88,16 @@
       type="text"
       name="maximize_text"
       id="maximize_text"
+      placeholder="alert text trigger before maximize"
     )
   .row
-    label(for="minize_text") onBeforeMinimize：
+    label(for="minimize_text") onBeforeMinimize：
     input(
       v-model="beforeMin"
       type="text"
-      name="minize_text"
-      id="minize_text"
+      name="minimize_text"
+      id="minimize_text"
+      placeholder="alert text trigger before minimize"
     )
   .row
     label(for="normalize_text") onBeforeNormalize：
@@ -99,6 +106,7 @@
       type="text"
       name="normalize_text"
       id="normalize_text"
+      placeholder="alert text trigger before normalize"
     )
   .row.flex-end
     button(@click="AddPanel") Create Panel
@@ -122,8 +130,8 @@ export default defineComponent({
     const id = ref<string>('')
     const component = ref<string>('')
     const headerTitle = ref<string>('')
-    const width = ref<number>(0)
-    const height = ref<number>(0)
+    const width = ref<number>(600)
+    const height = ref<number>(400)
     const top = ref<number | string>(0)
     const left = ref<number | string>(0)
     const handlers = ref<Handler[]>([])
@@ -189,7 +197,7 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 #app {
   box-sizing: border-box;
   font-family: Avenir, Helvetica, Arial, sans-serif;

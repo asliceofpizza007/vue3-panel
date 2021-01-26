@@ -4,6 +4,7 @@ import store from './store'
 import MinimizeContainer from '@/components/PanelMinimizeContainer.vue'
 import Panel from '@/components/Panel.vue'
 import '@/assets/scss/icon/iconfont.css'
+import '@/assets/scss/reset.scss'
 
 const app = createApp(App)
 
