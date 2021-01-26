@@ -1,28 +1,28 @@
 <template lang="pug">
 Teleport(to="body")
   .panel(
-    v-show="!isMinimized"
+    v-show="status !== 'minimized'"
     ref="panelRef"
     @mousedown="onPanelSelect"
   )
     .panel-header(
-      :class="`${!isNormalized ? 'no-handler': ''}`"
+      :class="`${status !== 'normalized' ? 'no-handler': ''}`"
       @mousedown="onHeaderDown"
     )
       .title {{ config.headerTitle }}
       .toolbar
         .controller.minimize(
-          v-show="!isMinimized"
+          v-show="status !== 'minimized'"
           @click="onMinimize"
         )
           .i.mdi-window-minimize
         .controller.normalize(
-          v-show="!isNormalized"
+          v-show="status !== 'normalized'"
           @click="onNormalize"
         )
           .i.mdi-window-restore
         .controller.maximize(
-          v-show="!isMaximized"
+          v-show="status !== 'maximized'"
           @click="onMaximize"
         )
           .i.mdi-window-maximize
@@ -33,21 +33,21 @@ Teleport(to="body")
     .handler(
       v-for="handler in config.resizeHandler"
       :key="handler"
-      :class="`handler-${handler} ${!isNormalized ? 'no-handler' : ''}`"
+      :class="`handler-${handler} ${status !== 'normalized' ? 'no-handler' : ''}`"
       @mousedown="onHandlerDown($event, handler)"
     )
 Teleport(to="#panel-minimize-container")
-  MinimizePanel(v-show="isMinimized")
-    .panel-header(:class="`${!isNormalized ? 'no-handler': ''}`")
+  MinimizePanel(v-show="status === 'minimized'")
+    .panel-header(:class="`${status !== 'normalized' ? 'no-handler': ''}`")
       .title {{ config.headerTitle }}
       .toolbar
         .controller.normalize(
-          v-show="!isNormalized"
+          v-show="status !== 'normalized'"
           @click="onNormalize"
         )
           .i.mdi-window-restore
         .controller.maximize(
-          v-show="!isMaximized"
+          v-show="status !== 'maximized'"
           @click="onMaximize"
         )
           .i.mdi-window-maximize
@@ -91,11 +91,9 @@ export default defineComponent({
       default: {}
     }
   },
-  setup (props) {
+  setup (props, { emit }) {
     const panelRef = ref<HTMLElement | null>()
-    const isMinimized = ref<boolean>(false)
-    const isMaximized = ref<boolean>(false)
-    const isNormalized = ref<boolean>(true)
+    const status = ref<string>('')
     let panel: Panel
 
     const { config } = toRefs(props)
@@ -105,68 +103,58 @@ export default defineComponent({
     } = usePanel()
 
     onMounted(() => {
-      const size = {
-        width: 600,
-        height: 400
-      }
       const conf = {
         ...defaultConfig,
         ...config.value
       }
       if (panelRef.value) {
         panel = new Panel(panelRef.value, conf)
+        status.value = panel.status
       }
     })
     onBeforeUnmount(() => {
+      panel.close()
       panelRef.value = null
       console.log('unmount')
     })
 
     const onPanelSelect = (e: MouseEvent): void => {
-      if (!isNormalized.value) return
+      if (status.value !== 'normalized') return
       panel.onPanelSelect(e)
     }
 
     const onHeaderDown = (e: MouseEvent): void => {
-      if (!isNormalized.value) return
+      if (status.value !== 'normalized') return
       panel.onHeaderDown(e)
     }
 
     const onHandlerDown = (e: MouseEvent, handler: string): void => {
-      if (!isNormalized.value) return
+      if (status.value !== 'normalized') return
       panel.onHandlerDown(e, handler)
     }
 
     const onClose = (): void => {
-      panel.close()
+      emit('close')
       removePanel(config.value.id)
     }
 
-    const onMaximize = (): void => {
-      panel.maximize()
-      isMaximized.value = true
-      isMinimized.value = false
-      isNormalized.value = false
+    const onMaximize = async (): Promise<void> => {
+      await panel.maximize()
+      status.value = panel.status
     }
 
-    const onNormalize = (): void => {
-      panel.normalize()
-      isMaximized.value = false
-      isMinimized.value = false
-      isNormalized.value = true
+    const onNormalize = async (): Promise<void> => {
+      await panel.normalize()
+      status.value = panel.status
     }
 
-    const onMinimize = (): void => {
-      panel.minimize()
-      isMaximized.value = false
-      isMinimized.value = true
-      isNormalized.value = false
+    const onMinimize = async (): Promise<void> => {
+      await panel.minimize()
+      status.value = panel.status
     }
     return {
       panelRef,
-      isMaximized,
-      isMinimized,
-      isNormalized,
+      status,
       onPanelSelect,
       onHandlerDown,
       onHeaderDown,
