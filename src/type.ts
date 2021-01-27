@@ -11,12 +11,21 @@ export type Position = {
   left: number | string
 }
 
+export type HeaderTheme = {
+  padding?: string
+  fontSize?: string
+  lineHeight?: string
+  background?: string
+  color?: string
+}
+
 export declare type Handler = 'n' | 'e' | 'w' | 's' | 'nw' | 'ne' | 'sw' | 'se'
 
 export type Config = {
   id: string
   // component: string
   headerTitle: string
+  headerTheme?: HeaderTheme
   size: Size
   position: Position
   resizeHandler: Handler[]
