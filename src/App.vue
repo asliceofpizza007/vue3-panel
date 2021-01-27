@@ -1,6 +1,6 @@
 <template lang="pug">
 .interface
-  //- .row
+  //- .row.flex.flex-a-center.flex-j-start
   //-   label(for="id") ID：
   //-   input(
   //-     v-model="id"
@@ -8,7 +8,7 @@
   //-     name="id"
   //-     id="id"
   //-   )
-  //- .row
+  //- .row.flex.flex-a-center.flex-j-start
   //-   label(for="component") 組件名稱：
   //-   input(
   //-     v-model="component"
@@ -16,7 +16,7 @@
   //-     name="component"
   //-     id="component"
   //-   )
-  .row
+  .row.flex.flex-a-center.flex-j-start
     label(for="header_title") Header Title：
     input(
       v-model="headerTitle"
@@ -25,7 +25,55 @@
       id="header_title"
       placeholder="title for panel header"
     )
-  .row
+  .row.flex.flex-a-start.flex-j-start.flex-column
+    label Header Theme：
+    .rank
+      .row.flex.flex-a-center.flex-j-start
+        label(for="header_padding") Padding：
+        input(
+          v-model="headerTheme.padding"
+          type="text"
+          name="header_padding"
+          id="header_padding"
+          placeholder="padding for panel header"
+        )
+      .row.flex.flex-a-center.flex-j-start
+        label(for="header_fz") Font Size：
+        input(
+          v-model="headerTheme.fontSize"
+          type="text"
+          name="header_fz"
+          id="header_fz"
+          placeholder="font-size for panel header"
+        )
+      .row.flex.flex-a-center.flex-j-start
+        label(for="header_lh") Line Height：
+        input(
+          v-model="headerTheme.lineHeight"
+          type="text"
+          name="header_lh"
+          id="header_lh"
+          placeholder="line-height for panel header"
+        )
+      .row.flex.flex-a-center.flex-j-start
+        label(for="header_bg") Background：
+        input(
+          v-model="headerTheme.background"
+          type="text"
+          name="header_bg"
+          id="header_bg"
+          placeholder="background for panel header"
+        )
+      .row.flex.flex-a-center.flex-j-start
+        label(for="header_color") Color：
+        input(
+          v-model="headerTheme.color"
+          type="text"
+          name="header_color"
+          id="header_color"
+          placeholder="color for panel header"
+        )
+  .row.flex.flex-a-center.flex-j-start
     label(for="size_width") Width：
     input(
       v-model="width"
@@ -34,7 +82,7 @@
       id="size_width"
       placeholder="panel width must be numerical string or number"
     )
-  .row
+  .row.flex.flex-a-center.flex-j-start
     label(for="size_height") Height：
     input(
       v-model="height"
@@ -43,7 +91,7 @@
       id="size_height"
       placeholder="panel height must be numerical string or number"
     )
-  .row
+  .row.flex.flex-a-center.flex-j-start
     label(for="poritions_top") Top：
     input(
       v-model="top"
@@ -52,7 +100,7 @@
       id="poritions_top"
       placeholder="position top must be numerical string or number"
     )
-  .row
+  .row.flex.flex-a-center.flex-j-start
     label(for="position_left") Left：
     input(
       v-model="left"
@@ -61,7 +109,7 @@
       id="position_left"
       placeholder="position left must be numerical string or number"
     )
-  .row
+  .row.flex.flex-a-center.flex-j-start
     label Handler：
     .check-list
       template(v-for="handler in handlerList" :key="handler")
@@ -73,7 +121,7 @@
           :id="handler"
         )
         label(:for="handler") {{ handler }}
-  .row
+  .row.flex.flex-a-center.flex-j-start
     label closeOnEscape：
     label.switch
       input(
@@ -81,7 +129,7 @@
         type="checkbox"
       )
       span.slider
-  .row
+  .row.flex.flex-a-center.flex-j-start
     label(for="maximize_text") onBeforeMaximize：
     input(
       v-model="beforeMax"
@@ -90,7 +138,7 @@
       id="maximize_text"
       placeholder="alert text trigger before maximize"
     )
-  .row
+  .row.flex.flex-a-center.flex-j-start
     label(for="minimize_text") onBeforeMinimize：
     input(
       v-model="beforeMin"
@@ -99,7 +147,7 @@
       id="minimize_text"
       placeholder="alert text trigger before minimize"
     )
-  .row
+  .row.flex.flex-a-center.flex-j-start
     label(for="normalize_text") onBeforeNormalize：
     input(
       v-model="beforeNor"
@@ -108,17 +156,17 @@
       id="normalize_text"
       placeholder="alert text trigger before normalize"
     )
-  .row.flex-end
+  .row.flex.flex-a-center.flex-j-end
     button(@click="AddPanel") Create Panel
 
 PanelGroup
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, reactive } from 'vue'
 import usePanel from '@/hooks/usePanel'
 import PanelGroup from './components/PanelGroup.vue'
-import { Handler, Config } from '@/type'
+import { Handler, Config, HeaderTheme } from '@/type'
 
 export default defineComponent({
   name: 'App',
@@ -129,13 +177,20 @@ export default defineComponent({
     const handlerList = ['n', 'e', 'w', 's', 'nw', 'ne', 'sw', 'se']
     const id = ref<string>('')
     const component = ref<string>('')
-    const headerTitle = ref<string>('')
+    const headerTitle = ref<string>('This is my panel')
+    const headerTheme = reactive<HeaderTheme>({
+      padding: '0.2rem 0.5rem',
+      fontSize: '1rem',
+      lineHeight: '1.5',
+      background: '#999999',
+      color: '#fff'
+    })
     const width = ref<number>(600)
     const height = ref<number>(400)
     const top = ref<number | string>(0)
     const left = ref<number | string>(0)
     const handlers = ref<Handler[]>([])
-    const esc = ref<boolean>(false)
+    const esc = ref<boolean>(true)
     const beforeMax = ref<string>('')
     const beforeMin = ref<string>('')
     const beforeNor = ref<string>('')
@@ -149,6 +204,7 @@ export default defineComponent({
         id: String(++l),
         // component: component.value,
         headerTitle: headerTitle.value,
+        headerTheme,
         size: {
           width: width.value,
           height: height.value
@@ -182,6 +238,7 @@ export default defineComponent({
       id,
       component,
       headerTitle,
+      headerTheme,
       width,
       height,
       top,
@@ -210,9 +267,6 @@ export default defineComponent({
   padding: 1rem;
   background-color: #9FECF5;
   .row {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
     label {
       font-weight: bold;
     }
@@ -277,8 +331,9 @@ export default defineComponent({
     * {
       outline: 0;
     }
-    &.flex-end {
-      justify-content: flex-end;
+    .rank {
+      width: 100%;
+      padding-left: 2rem;
     }
   }
 }

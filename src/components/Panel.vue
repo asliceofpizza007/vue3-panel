@@ -7,6 +7,7 @@ Teleport(to="body")
   )
     .panel-header(
       :class="`${status !== 'normalized' ? 'no-handler': ''}`"
+      :style="headerCssVar"
       @mousedown="onHeaderDown"
       @dblclick="handlMaximize"
     )
@@ -39,7 +40,10 @@ Teleport(to="body")
     )
 Teleport(to="#panel-minimize-container")
   MinimizePanel(v-show="status === 'minimized'")
-    .panel-header(:class="`${status !== 'normalized' ? 'no-handler': ''}`")
+    .panel-header(
+      :class="`${status !== 'normalized' ? 'no-handler': ''}`"
+      :style="headerCssVar"
+    )
       .title {{ config.headerTitle }}
       .toolbar
         .controller.normalize(
@@ -99,6 +103,25 @@ export default defineComponent({
 
     const { config } = toRefs(props)
 
+    const { headerTheme } = config.value
+    const headerCssVar = ref<string>('')
+
+    if (headerTheme) {
+      const {
+        padding,
+        fontSize,
+        lineHeight,
+        background,
+        color
+      } = headerTheme
+      headerCssVar.value = `
+        --header-padding: ${padding || '0.2rem 0.5rem'};
+        --header-fz: ${fontSize || '1rem'};
+        --header-lh: ${lineHeight || '1.5'};
+        --header-bg: ${background || '#999999'};
+        --header-color: ${color || '#fff'}
+      `.trim()
+    }
     const {
       removePanel
     } = usePanel()
@@ -162,6 +185,7 @@ export default defineComponent({
       }
     }
     return {
+      headerCssVar,
       panelRef,
       status,
       onPanelSelect,
@@ -191,10 +215,11 @@ export default defineComponent({
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    line-height: 1.5;
-    padding: 0.2rem 0.5rem;
-    color: #fff;
-    background-color: #999999;
+    line-height: var(--header-lh);
+    padding: var(--header-padding);
+    color: var(--header-color);
+    font-size: var(--header-fz);
+    background: var(--header-bg);
     cursor: move;
 
     .title {
