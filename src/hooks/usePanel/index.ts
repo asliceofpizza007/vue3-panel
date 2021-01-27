@@ -23,7 +23,10 @@ const usePanel = (): UsePanel => {
 
   const addPanel = (config: Config): void => {
     if (checkValidate(config)) {
-      configs.value.push(config)
+      const duplicated = configs.value.find(con => con.id === config.id)
+      if (!duplicated) {
+        configs.value.push(config)
+      }
     } else {
       throw new Error('attribute width, height, top, left must be numerical string or number')
     }
