@@ -1,20 +1,13 @@
 <template lang="pug">
-.hello Hello, World !
-p Hello, World!
+p Hello, Panel02!
 </template>
 <script lang="ts">
 import { defineComponent } from 'vue'
 export default defineComponent({
-  name: 'Test'
+  name: 'Panel01'
 })
 </script>
 <style lang="scss" scoped>
-.hello {
-  font-size: 24px;
-  font-weight: bolder;
-  height: 100vh;
-}
-
 p {
   display: inline;
   font-size: 48px;
