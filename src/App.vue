@@ -8,14 +8,12 @@
   //-     name="id"
   //-     id="id"
   //-   )
-  //- .row.flex.flex-a-center.flex-j-start
-  //-   label(for="component") 組件名稱：
-  //-   input(
-  //-     v-model="component"
-  //-     type="text"
-  //-     name="component"
-  //-     id="component"
-  //-   )
+  .row.flex.flex-a-center.flex-j-start
+    label(for="component") 組件名稱：
+    select(v-model="component")
+      option(value="panel01") Panel01
+      option(value="panel02") Panel02
+      option(value="panel03") Panel03
   .row.flex.flex-a-center.flex-j-start
     label(for="header_title") Header Title：
     input(
@@ -176,7 +174,7 @@ export default defineComponent({
   setup () {
     const handlerList = ['n', 'e', 'w', 's', 'nw', 'ne', 'sw', 'se']
     const id = ref<string>('')
-    const component = ref<string>('')
+    const component = ref<string>('panel01')
     const headerTitle = ref<string>('This is my panel')
     const headerTheme = reactive<HeaderTheme>({
       padding: '0.2rem 0.5rem',
@@ -200,9 +198,11 @@ export default defineComponent({
     } = usePanel()
     let l = configs.value.length
     const AddPanel = (): void => {
+      // to prevent pass reference
+      const c = component.value
       const config: Config = {
         id: String(++l),
-        // component: component.value,
+        component: () => import(`@/views/panelContent/${c}.vue`),
         headerTitle: headerTitle.value,
         headerTheme,
         size: {
