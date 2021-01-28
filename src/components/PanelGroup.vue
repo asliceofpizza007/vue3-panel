@@ -4,27 +4,34 @@ Panel(
   :key="panel.id"
   :config="panel"
 )
-  Test
+  component(:is="getDynamicComponent(panel.component)")
 </template>
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, defineAsyncComponent } from 'vue'
 import usePanel from '@/hooks/usePanel'
 import Panel from './Panel.vue'
-import Test from '@/views/panelContent/panel.vue'
+import { DynamicComponent } from '@/type'
 
 export default defineComponent({
   name: 'PanelGroup',
   components: {
-    Panel,
-    Test
+    Panel
   },
   setup () {
     const {
       configs
     } = usePanel()
 
+    const getDynamicComponent = (component: DynamicComponent) => {
+      if (typeof component === 'string') {
+        return component
+      }
+      return defineAsyncComponent(component)
+    }
+
     return {
-      configs
+      configs,
+      getDynamicComponent
     }
   }
 })

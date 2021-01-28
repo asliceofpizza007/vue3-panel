@@ -221,8 +221,8 @@ class Panel {
         this.el.style.top = this.originY + resizeDiffY + 'px'
       }
     }
-    this.tempPos.top = this.el.style.top
-    this.tempPos.left = this.el.style.left
+    this.tempPos.top = this.el.style.top.replace('px', '')
+    this.tempPos.left = this.el.style.left.replace('px', '')
     this.setSize(this.tempSize)
   }
 

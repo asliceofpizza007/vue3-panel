@@ -1,6 +1,5 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import store from './store'
 import MinimizeContainer from '@/components/PanelMinimizeContainer.vue'
 import Panel from '@/components/Panel.vue'
 import '@/assets/scss/icon/iconfont.css'
@@ -22,4 +21,4 @@ const panel = {
   }
 }
 
-app.use(store).use(panel).mount('#app')
+app.use(panel).mount('#app')

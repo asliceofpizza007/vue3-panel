@@ -21,9 +21,12 @@ export type HeaderTheme = {
 
 export declare type Handler = 'n' | 'e' | 'w' | 's' | 'nw' | 'ne' | 'sw' | 'se'
 
+/** due to shims-vue.d.ts of module *.vue declaration */
+export type DynamicComponent = string | (() => Promise<typeof import('*.vue')>)
+
 export type Config = {
   id: string
-  // component: string
+  component: DynamicComponent
   headerTitle: string
   headerTheme?: HeaderTheme
   size: Size

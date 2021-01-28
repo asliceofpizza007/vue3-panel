@@ -68,7 +68,7 @@ import { Config } from '@/type'
 
 const defaultConfig: Config = {
   id: 'default',
-  // component: '',
+  component: () => import('@/views/panelContent/panel01.vue'),
   headerTitle: 'headerTitle',
   size: {
     width: 600,
@@ -243,7 +243,7 @@ export default defineComponent({
     width: 100%;
     padding: 0.5rem;
     flex: 1;
-    overflow: auto;
+    overflow: hidden;
     background: #fff;
   }
 
