@@ -9,7 +9,7 @@
   //-     id="id"
   //-   )
   .row.flex.flex-a-center.flex-j-start
-    label(for="component") 組件名稱：
+    label(for="component") Component：
     select(v-model="component")
       option(value="panel01") Panel01
       option(value="panel02") Panel02
